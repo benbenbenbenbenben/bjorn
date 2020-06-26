@@ -1,6 +1,5 @@
 const reflect = require('js-function-reflector');
 
-const MANY = Symbol("many")
 Object.defineProperty(Function.__proto__, "many", {
     get: function () {
         let f = (...args) => {
@@ -18,7 +17,7 @@ const bjorn = sequence => (...patterns) => {
         for (let i = 0, j = 0; i < pattern.length - 1; i++, j++) {
             let sequenceLength = 0
             if (sequenceLength = pattern[i](...sequence.slice(j)) | 0) {
-                parameters[pattern[i].name] = sequenceLength === 1 ? sequence[j] : sequence.slice(j, j + sequenceLength)
+                parameters[i] = parameters[pattern[i].name] = sequenceLength === 1 ? sequence[j] : sequence.slice(j, j + sequenceLength)
                 j += sequenceLength - 1
             } else {
                 break
@@ -26,7 +25,7 @@ const bjorn = sequence => (...patterns) => {
             if (i === pattern.length - 2) {
                 parameters["tail"] = sequence.slice(j + 1)
                 const spec = reflect(pattern[i + 1])
-                const call = spec.params.map(p => parameters[p.name])
+                const call = spec.params.map((p, i) => parameters.hasOwnProperty(p.name) ? parameters[p.name] : parameters[i])
                 pattern[i + 1].apply(undefined, call)
             }
         }

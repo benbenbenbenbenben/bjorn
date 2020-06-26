@@ -1,4 +1,3 @@
-const { TestScheduler } = require("jest");
 const bjorn = require("./index")
 
 describe("bjorn", () => {
@@ -12,7 +11,7 @@ describe("bjorn", () => {
 
     const seq = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-    test("regular", () => {
+    test("named", () => {
         bjorn(seq)(
             [p0, p1, p2, (p0, tail) => {
                 expect(p0).toBe(0)
@@ -21,24 +20,46 @@ describe("bjorn", () => {
         )
     })
 
-    bjorn(seq)(
-        [...[p0, p1, p2], (p0, tail) => {
-            console.log("splat")
-            console.log(p0, tail)
-        }]
-    )
+    test("named skipping one", () => {
+        bjorn(seq)(
+            [p0, p1, p2, (p1, tail) => {
+                expect(p1).toBe(1)
+                expect(tail).toStrictEqual(seq.slice(3))
+            }]
+        )
+    })
 
-    bjorn(seq)(
-        [...p012, (p0, tail) => {
-            console.log("splat named")
-            console.log(p0, tail)
-        }]
-    )
+    test("positional", () => {
+        bjorn(seq)(
+            [p0, p1, p2, (a, b, c, tail) => {
+                expect(b).toBe(1)
+                expect(tail).toStrictEqual(seq.slice(3))
+            }]
+        )
+    })
 
-    bjorn([0, 0, 0, ...seq])(
-        [zero.many, (zero, tail) => {
-            console.log("many")
-            console.log(zero, tail)
-        }]
-    )
+    test("splat", () => {
+        bjorn(seq)(
+            [...[p0, p1, p2], (p0, tail) => {
+                expect(p0).toBe(0)
+                expect(tail).toStrictEqual(seq.slice(3))
+            }]
+        )
+        bjorn(seq)(
+            [...p012, (p0, tail) => {
+                expect(p0).toBe(0)
+                expect(tail).toStrictEqual(seq.slice(3))
+            }]
+        )
+
+    })
+
+    test("many utility", () => {
+        bjorn([0, 0, 0, ...seq])(
+            [zero.many, (zero, tail) => {
+                expect(zero).toStrictEqual([0, 0, 0, 0])
+                expect(tail).toStrictEqual(seq.slice(1))
+            }]
+        )
+    })
 })

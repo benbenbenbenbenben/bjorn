@@ -15,6 +15,8 @@ Björn is a JavaScript native array pattern matcher that uses predicates to find
 ### Björn finds arrays within arrays:
 
 ```javascript
+const bjorn = require("./index")
+
 const p0 = x => x === 0;
 const p1 = x => x === 1;
 const p2 = x => x === 2;
