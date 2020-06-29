@@ -62,4 +62,54 @@ describe("bjorn", () => {
             }]
         )
     })
-})
+
+    test("skip utility", () => {
+        bjorn(seq)(
+            [zero.skip, p0, (a, tail) => {
+                expect(a).toBe(1)
+                expect(tail).toStrictEqual(seq.slice(2))
+            }]
+        )
+    })
+
+    test("many.skip utility", () => {
+        bjorn([0,0,0,0,1,2,3,4])(
+            [zero.many.skip, p0, (a, tail) => {
+                expect(a).toBe(1)
+                expect(tail).toStrictEqual([2,3,4])
+            }]
+        )
+    })
+
+    test("skip.many utility", () => {
+        bjorn([0,0,0,0,1,2,3,4])(
+            [zero.skip.many, p0, (a, tail) => {
+                expect(a).toBe(1)
+                expect(tail).toStrictEqual([2,3,4])
+            }]
+        )
+    })
+
+    test("skip many utility", () => {
+        const a = bjorn([0,0,0,0,1,2,3,4])(
+            [zero.many.skip, p0, (a, tail) => a]
+        )
+        expect(a).toBe(1)
+        const b = bjorn([0,0,0,0,1,2,3,4])(
+            [x => false],
+            [zero.many.skip, p0, tail => tail]
+        )
+        expect(b).toStrictEqual([2,3,4])
+    })
+
+    test("seek", () => {
+        const a = bjorn([0, 1, 2], {seek:true})(
+            [x => x == 2, a => a]
+        )
+        expect(a).toBe(2)
+        const b = bjorn([0, 1, 2])(
+            [x => x == 2, a => a]
+        )
+        expect(b).toBe(undefined)
+    })
+}) 
