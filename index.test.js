@@ -112,4 +112,27 @@ describe("bjorn", () => {
         )
         expect(b).toBe(undefined)
     })
+
+    test("exhaustive", () => {
+        const zero = x => x == 0
+        const a = bjorn([3,2,1,0,0,3,2,1,0,0,3,2,1], {seek:true, exhaustive:true})(
+            [zero, zero, (a, b) => [a, b]]
+        )
+        expect(a).toStrictEqual(
+           [[0,0],[0,0]]
+        )
+
+    })
+
+    test("exhaustive singles", () => {
+        const zero = x => x == 0
+        const a = bjorn([3,2,1,0,0,3,2,1,0,0,3,2,1], {seek:true, exhaustive:true})(
+            [zero, a => a]
+        )
+        a // ?
+        expect(a).toStrictEqual(
+           [0, 0, 0, 0]
+        )
+
+    })
 }) 
