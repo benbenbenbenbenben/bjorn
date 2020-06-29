@@ -28,7 +28,7 @@ Object.defineProperties(Function.__proto__, {
 
 const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
     if (options.seek) {
-        patterns = patterns.map(pattern => pattern[0][SKIP] ? pattern : [
+        patterns = patterns.map(pattern => pattern[0][SKIP] && pattern[0][OPTIONAL] ? pattern : [
             (x => !pattern[0](x)).skip.many, ...pattern    
         ])
     }
@@ -36,7 +36,6 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
         let matches = []
         let parameters = {}
         for (let i = 0, j = 0, k = 0; i < pattern.length - 1; i++, j++) {
-            [i, j] // ?
             let sequenceLength = 0
             if (sequenceLength = pattern[i](...sequence.slice(j)) | 0) {
                 if (pattern[i][SKIP] === undefined) {
@@ -47,6 +46,7 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
                 // rewind optional match miss
                 j--
             } else {
+                "break" // ?
                 break
             }
             if (i === pattern.length - 2) {
@@ -56,7 +56,6 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
                 if (options.exhaustive) {
                     matches.push(pattern[i + 1].apply(undefined, call));
                     const next = bjorn(sequence.slice(j + 1), options)(...patterns);
-                    [next, sequence.slice(j + 1), patterns[0]] // ?
                     if (next !== undefined) {
                         matches.push(...next)
                     }

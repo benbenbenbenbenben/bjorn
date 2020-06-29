@@ -72,6 +72,16 @@ describe("bjorn", () => {
         )
     })
 
+    test("skip utility", () => {
+        bjorn([1, ...seq], {seek:true})(
+            [zero.skip, p0, (a, tail) => {
+                expect(a).toBe(1)
+                expect(tail).toStrictEqual(seq.slice(2))
+            }]
+        )
+    })
+
+
     test("many.skip utility", () => {
         bjorn([0,0,0,0,1,2,3,4])(
             [zero.many.skip, p0, (a, tail) => {
@@ -107,10 +117,16 @@ describe("bjorn", () => {
             [x => x == 2, a => a]
         )
         expect(a).toBe(2)
+
         const b = bjorn([0, 1, 2])(
             [x => x == 2, a => a]
         )
         expect(b).toBe(undefined)
+
+        const c = bjorn([0, 1, 2], {seek:true})(
+            [x => x == 0, a => a]
+        )
+        expect(c).toBe(0)
     })
 
     test("exhaustive", () => {
