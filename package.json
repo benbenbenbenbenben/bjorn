@@ -9,7 +9,7 @@
     "build": "jest && tsc"
   },
   "files":[
-    "lib/**",
+    "lib/**/!(*.test).*",
     "typings.d.ts"
   ],
   "author": "Benjamin Babik",
