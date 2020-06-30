@@ -8,6 +8,15 @@ describe("bjorn", () => {
     const p012 = [p0, p1, p2]
 
     const zero = x => x === 0;
+    const one = x => x === 1;
+    const two = x => x === 2;
+    const three = x => x === 3;
+    const four = x => x === 4;
+    const five = x => x === 5;
+    const six = x => x === 6;
+    const seven = x => x === 7;
+    const eight = x => x === 8;
+    const nine = x => x === 9;
 
     const seq = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -150,5 +159,13 @@ describe("bjorn", () => {
            [0, 0, 0, 0]
         )
 
+    })
+
+    test("seek second", () => {
+        const a = bjorn(seq, {seek:true})(
+            [eight, nine, (a,b) => [a,b]],
+            [three, four, (a,b) => [a,b]]
+        )
+        expect(a).toStrictEqual([3,4])
     })
 }) 
