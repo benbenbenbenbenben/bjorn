@@ -2,16 +2,23 @@
   "name": "bjorn",
   "version": "0.0.8",
   "description": "Björn is a JavaScript native array pattern matcher that uses predicates to find sequences within sequences. It gives you practical and no-bloat no-bullshit pattern matching over arrays.",
-  "main": "index.js",
+  "lib": "lib.js",
   "scripts": {
     "test": "jest"
   },
+  "files":[
+    "lib/**"
+  ],
   "author": "Benjamin Babik",
   "license": "MIT",
   "dependencies": {
     "js-function-reflector": "^2.0.3"
   },
   "devDependencies": {
+    "typescript": "^3.9.5",
+    "@types/jest": "^26.0.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-typescript": "^7.10.1",
     "jest": "^26.1.0"
   }
 }

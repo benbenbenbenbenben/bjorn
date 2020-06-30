@@ -3,10 +3,10 @@ const reflect = require('js-function-reflector');
 const SKIP = Symbol("skip")
 const OPTIONAL = Symbol("optional")
 
-Object.defineProperties(Function.__proto__, {
+Object.defineProperties(Function.prototype, {
     "many": {
         get: function () {
-            let f = (...args) => {
+            let f = (...args: any[]) => {
                 const i = args.findIndex(v => !this(v))
                 return i >= 0 ? i : false
             }
@@ -26,7 +26,12 @@ Object.defineProperties(Function.__proto__, {
     }
 })
 
-const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
+type options = {
+    seek?:boolean
+    exhaustive?:boolean
+}
+
+export const bjorn = (sequence:any[], options:options = {seek:false, exhaustive:false}) => (...patterns:any[][]):any => {
     /*if (options.seek) {
         patterns = patterns.map(pattern => pattern[0][SKIP] && pattern[0][OPTIONAL] ? pattern : [
             (x => !pattern[0](x)).skip.many, ...pattern    
@@ -36,7 +41,7 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
     do {
         for (const pattern of patterns) {
             let matches = []
-            let parameters = {}
+            let parameters:any = {}
             
             for (let i = 0, j = 0, k = 0; i < pattern.length - 1; i++, j++) {
                 let sequenceLength = 0
@@ -54,7 +59,7 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
                 if (i === pattern.length - 2) {
                     parameters["tail"] = searchsequence.slice(j + 1)
                     const spec = reflect(pattern[i + 1])
-                    const call = spec.params.map((p, i) => parameters.hasOwnProperty(p.name) ? parameters[p.name] : parameters[i])
+                    const call = spec.params.map((p: { name: string | number; }, i: string | number) => parameters.hasOwnProperty(p.name) ? parameters[p.name] : parameters[i])
                     if (options.exhaustive) {
                         matches.push(pattern[i + 1].apply(undefined, call));
                         const next = bjorn(searchsequence.slice(j + 1), options)(...patterns);
@@ -74,5 +79,3 @@ const bjorn = (sequence, options = {seek:false}) => (...patterns) => {
     } while(options.seek && (searchsequence = searchsequence.slice(1)).length)
     
 }
-
-module.exports = bjorn
