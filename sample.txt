@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+
+const { bjorn } = require(`bjorn`)
+const visit = require(`unist-util-visit`)
+
+const bem = filename => require(`md-to-bemjson`).convertSync(require(`fs`).readFileSync(filename), {
+    plugins: [
+        {
+            plugin: () => (tree, file) => {
+                visit(tree, node => {
+                    node.data = {
+                        start: node.position.start,
+                        end: node.position.end
+                    }
+                })
+            }, options: {}
+        }
+    ]
+})
+
+const data = bem(`./features/Collections.spec.md`);
+
+const FEATURE = x => x.block == `heading` && x.level == 1
+const AC = x => x.block == `heading` && x.level == 2 && x.content == `Acceptance Criteria:`
+const LIST = x => x.block == `list`
+
+const _not_ = f => x => !f(x)
+
+const REDUCE = true
+const reducer = (p, c) => [...p, ...(Array.isArray(c) ? c : [c])]
+const log = console.log.bind(console)
+
+const featureSpec = (data, specs = []) => bjorn(data)(
+    [FEATURE, (feature, tail) =>
+        bjorn(tail)(
+            [_not_(AC).many, AC, tail =>
+                bjorn(tail)(
+                    [_not_(LIST).many, LIST, (list, tail) => {
+                        const visitList = (list, pfx = ``) => {
+                            const visitListItem = (li, i) => {
+                                const emit = ({ content: detail, data: { start, end } }) => {
+                                    log(`${pfx}${i + 1}`, feature.content, detail)
+                                    return {
+                                        index: `${pfx}${i + 1}`,
+                                        feature: feature.content,
+                                        detail,
+                                        position: { start, end }
+                                    }
+                                }
+                                if (li.block == `list`) {
+                                    return visitList(li, `${pfx}${i}.`)
+                                } else if (li.block == `list-item`) {
+                                    if (Array.isArray(li.content)) {
+                                        return li.content.map((x, j) => {
+                                            return visitListItem(x, j + i)
+                                        }).reduce(reducer, [])
+                                    } else {
+                                        return emit(li.content)
+                                    }
+                                } else {
+                                    return emit(li)
+                                }
+                            }
+
+                            if (Array.isArray(list.content)) {
+                                return list.content.map(visitListItem).reduce(reducer, [])
+                            } else {
+                                return visitListItem(list.content, 0)
+                            }
+                        }
+                        specs.push(visitList(list))
+                        if (tail.length) {
+                            featureSpec(tail, specs)
+                        }
+                        return specs
+                    }]
+                )
+            ]
+        )
+    ]
+)
+
+const k = featureSpec(data.content)
+console.log(k)

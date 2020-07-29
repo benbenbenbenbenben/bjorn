@@ -1,3 +1,4 @@
+import "./typings";
 declare type options = {
     seek?: boolean;
     exhaustive?: boolean;

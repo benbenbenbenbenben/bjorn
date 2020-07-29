@@ -1,3 +1,5 @@
+import "./typings"
+
 const reflect = require('js-function-reflector');
 
 const SKIP = Symbol("skip")
